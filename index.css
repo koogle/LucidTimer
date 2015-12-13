@@ -5,114 +5,21 @@
 .page-content {
   width: 100%;
   height: 100%;
-  margin: 0
+  margin: 0;
+  color: #F44336;
 }
 
 #clockcanvas {
 	width: 100%;
-	background-color: lightblue;
 	max-height: 900px;
 	max-width: 900px;
 }
-/*
 
-.clock-boilerplate {
-  background-color: transparent;
-  border: solid 0.5em #212121;
-  border-radius: 50%;
-  padding-top: 97%;
-  margin: 17% 0 0 0;
-  box-shadow: 0 1px 1.5px 0 rgba(0,0,0,.12),0 1px 1px 0 rgba(0,0,0,.24);
+#timedisplay, #colordisplay {
+	padding-top: 20%;
+	text-align: center;
 }
 
-.clock-timerplate {
-  background-color: #F44336;
-  border-radius: 50%;
-  padding-top: 95%;
-  margin: -100% 0 0 2.5%;
-  width: 95%;
-  z-index: 5;
-  box-shadow: 0 1px 1.5px 0 rgba(0,0,0,.12),0 1px 1px 0 rgba(0,0,0,.24);
+.mdl-button.mdl-js-button.mdl-button--fab.mdl-button--colored.timebtn {
+	background-color: #F44336;
 }
-
-#watchcontainer .minute-marks {
-
-}
-
-#watchcontainer .minute-marks li {
-  display:block;
-  width: 0.2%;
-  padding-top: 1.5%;
-  background: #212121;
-  position: absolute;
-  top:55%; left:50%;
-  margin:-.4em 0 0 -.1em;
-}
-
-#watchcontainer .minute-marks li::after {
-	box-shadow: 0 1px 1.5px 0 rgba(0,0,0,.12),0 1px 1px 0 rgba(0,0,0,.24);
-}
-
-#watchcontainer .minute-marks li:first-child {transform:rotate(6deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(2) {transform:rotate(12deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(3) {transform:rotate(18deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(4) {transform:rotate(24deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(5) {transform:rotate(36deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(6) {transform:rotate(42deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(7) {transform:rotate(48deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(8) {transform:rotate(54deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(9) {transform:rotate(66deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(10) {transform:rotate(72deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(11) {transform:rotate(78deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(12) {transform:rotate(84deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(13) {transform:rotate(96deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(14) {transform:rotate(102deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(15) {transform:rotate(108deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(16) {transform:rotate(114deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(17) {transform:rotate(126deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(18) {transform:rotate(132deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(19) {transform:rotate(138deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(20) {transform:rotate(144deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(21) {transform:rotate(156deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(22) {transform:rotate(162deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(23) {transform:rotate(168deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(24) {transform:rotate(174deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(25) {transform:rotate(186deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(26) {transform:rotate(192deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(27) {transform:rotate(198deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(28) {transform:rotate(204deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(29) {transform:rotate(216deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(30) {transform:rotate(222deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(31) {transform:rotate(228deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(32) {transform:rotate(234deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(33) {transform:rotate(246deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(34) {transform:rotate(252deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(35) {transform:rotate(258deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(36) {transform:rotate(264deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(37) {transform:rotate(276deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(38) {transform:rotate(282deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(39) {transform:rotate(288deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(40) {transform:rotate(294deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(41) {transform:rotate(306deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(42) {transform:rotate(312deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(43) {transform:rotate(318deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(44) {transform:rotate(324deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(45) {transform:rotate(336deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(46) {transform:rotate(342deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(47) {transform:rotate(348deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(48) {transform:rotate(354deg) translateY(-1000%)}
-
-#watchcontainer .minute-marks li:nth-child(49) {transform:rotate(30deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(50) {transform:rotate(60deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(51) {transform:rotate(90deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(52) {transform:rotate(120deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(53) {transform:rotate(150deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(54) {transform:rotate(180deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(55) {transform:rotate(210deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(56) {transform:rotate(240deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(57) {transform:rotate(270deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(58) {transform:rotate(300deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:nth-child(59) {transform:rotate(330deg) translateY(-1000%)}
-#watchcontainer .minute-marks li:last-child {transform: translateY(-1000%)}
-
-*/

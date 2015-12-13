@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="bower_components/material-design-lite/material.min.css">
   <script src="bower_components/material-design-lite/material.min.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
 
   <script src="bower_components/hammerjs/hammer.js"></script>
 
@@ -16,18 +17,40 @@
 <body>
   <div class="mdl-layout mdl-js-layout">
     <header class="mdl-layout__header mdl-layout__header--waterfall">
-      <div class="mdl-layout__header-row"><span class="mdl-layout-title">LucidTimer</span></div>
+      <div class="mdl-layout__header-row">
+        <i class="material-icons">schedule</i>
+        <span class="mdl-layout-title">LucidTimer</span>
+        <div class="mdl-layout-spacer"></div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
+                  mdl-textfield--floating-label mdl-textfield--align-right">
+          <small>Sound by juskiddink @ freesound.com</small>
+        </div>
+      </div>
     </header>
 
     <main class="mdl-layout__content">
       <div class="page-content">
       
         <div class="mdl-grid">
-          <div class="mdl-cell mdl-cell--2-col"></div>
+          <div class="mdl-cell mdl-cell--2-col" id="colordisplay">
+            <h3>Choose color:</h3> <br>
+            <input type="color" id="colorpicker" onchange="changeColor()" value="#F44336">
+          </div>
           <div id="watchcontainer" class="mdl-cell mdl-cell--8-col">
               <canvas id="clockcanvas" width="2100" height="2100"></canvas>
           </div>
-          <div class="mdl-cell mdl-cell--2-col"></div>
+          <div class="mdl-cell mdl-cell--2-col" id="timedisplay">
+              <h1></h1> <br>
+              <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored timebtn" onclick="resetTime()">
+                <i class="material-icons">settings_backup_restore</i>
+              </button>
+              <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored timebtn" onclick="plusOne()">
+                <i class="material-icons">exposure_plus_1</i>
+              </button>
+              <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored timebtn" onclick="minusOne()">
+                <i class="material-icons">exposure_neg_1</i>
+              </button>
+          </div>
         </div>
       
       </div>
@@ -39,9 +62,22 @@
   var ctx = canvas.getContext("2d")
 
   var primaryDark = "#212121";
-  var primaryLight = "red";
+  var primaryLight = "#F44336";
+  var alarmSound = new Audio('gong.wav');
   var radius = 1000;
   var center = [1050, 1050];
+
+  function vectLeng(v) {
+    return Math.sqrt(Math.pow(v[0], 2) + Math.pow(v[1], 2));
+  }
+
+  function vectAngle(v1, v2) {
+    return Math.acos((v1[0]*v2[0] + v1[1] * v2[1]) / (vectLeng(v1) * vectLeng(v2)));
+  }
+
+  function vectDist(v1, v2) {
+    return vectLeng([Math.abs(v1[0] - v2[0]), Math.abs(v1[1] - v2[1])]);
+  }
 
   function timeToAng(minutes) {
     return minutes/30 * Math.PI;
@@ -49,6 +85,10 @@
 
   function timeAngToVect(ang) {
     return [-Math.sin(ang), Math.cos(ang)];
+  }
+
+  function roundToDigits(val, digits) {
+    return Math.round(val * Math.pow(10, digits)) / Math.pow(10, digits);
   }
 
   function setShadow() {
@@ -101,19 +141,17 @@
 
   function drawTime(minutes) {
     ctx.save();
-
-    ctx.beginPath();
-    
     var ang = timeToAng(minutes);
     var angOffset = 1.5 * Math.PI;
 
+    ctx.beginPath();
     ctx.moveTo(center[0], center[1]);
     ctx.lineTo(center[0], center[1] - radius * 0.95);
 
     ctx.arc(center[0], center[1], radius * 0.95, angOffset, angOffset - Math.min(ang, Math.PI * 2), true);
     ctx.closePath();
 
-    ctx.fillStyle = "#F44336"
+    ctx.fillStyle = primaryLight;
     setShadow();
     ctx.fill();
     
@@ -126,31 +164,116 @@
     ctx.strokeStyle = primaryDark;
     setOrthogonalShadow(ang);
     ctx.stroke();
+
     ctx.restore();
   }
-  var currentTime = 0.5;
 
-  function drawStep(i) {
-    if(i >= 300) {
-      i = 0;
-    }
+  var currentTime = 15 * 60;
+  var nextUpdateHandle = null;
 
+  function drawClock(time) {
     drawBack();
-    drawTime(i);
+    drawTime(time/60);
     drawTicks();
-    //setTimeout( function () { drawStep(i+1); }, 500);
   }
 
+  function makeToDisplayString(val) {   
+    return (val < 10 ? "0" : "") + Math.floor(val);   
+  }
 
-  var hammertime = new Hammer(document.getElementById("clockcanvas"));
+  function setDisplay(time) {
+    var hours = makeToDisplayString(time / 3600);
+    var minutes = makeToDisplayString(time / 60 % 60);
+    var seconds = makeToDisplayString(time % 60);
+
+    document.querySelector("#timedisplay > h1").innerHTML = hours + ":" + minutes + ":" + seconds;
+  }
+
+  function updateTime() {
+    if(nextUpdateHandle !== null) {
+      clearTimeout(nextUpdateHandle);
+    }
+
+    drawClock(currentTime);
+    setDisplay(currentTime);
+
+    if(currentTime > 0) {
+      nextUpdateHandle = setTimeout(function () {
+        currentTime -= 1;
+        
+        if(currentTime <= 0) {
+          
+          currentTime = 0;
+          alarmSound.play();
+        } else {
+         updateTime();
+        }
+      }, 1000); 
+    }
+  }
+
+  function plusOne() {
+    currentTime += 60;
+    updateTime();
+  }
+
+  function minusOne() {
+    currentTime -= 60;
+    updateTime();
+  }
+
+  function resetTime() {
+    currentTime = 0;
+    updateTime();
+  }
+
+  function changeColor() {
+    var newColor = document.getElementById("colorpicker").value;
+    console.log(newColor);
+
+    document.querySelector('.page-content').style.color = newColor;
+    var btns = document.querySelectorAll('.timebtn');
+    for (i = 0; i < btns.length; i++) {
+        btns[i].style.backgroundColor = newColor;
+    }
+    primaryLight = newColor;
+    updateTime();
+  }
+
+  var clockcanvas = document.getElementById("clockcanvas");
+  var hammertime = new Hammer(clockcanvas);
+  
   hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-  hammertime.on('pan', function(ev) {
+  hammertime.on('panmove', function(ev) {
+    timeInMinutes = currentTime/60;
 
-    var vect = 
-    console.log(ev.velocityX, ev.velocityY);
+    var pointerVect = [2 * ((ev.srcEvent.pageX - clockcanvas.offsetLeft) / clockcanvas.clientWidth - 0.5), 
+                      -2 * ((ev.srcEvent.clientY - clockcanvas.offsetTop) / clockcanvas.clientHeight - 0.5)];
+
+    var indVect = [timeAngToVect(timeToAng(timeInMinutes))[0], timeAngToVect(timeToAng(timeInMinutes))[1]];
+
+    var angleRadians = vectAngle(pointerVect, indVect);
+
+
+    var addTime = roundToDigits(timeInMinutes + angleRadians * 30 / Math.PI, 2);
+    var addVect = [timeAngToVect(timeToAng(addTime))[0], timeAngToVect(timeToAng(addTime))[1]];
+    var subTime = roundToDigits(timeInMinutes - angleRadians * 30 / Math.PI, 2);
+    var subVect = [timeAngToVect(timeToAng(subTime))[0], timeAngToVect(timeToAng(subTime))[1]];
+  
+    if(vectDist(addVect, pointerVect) < vectDist(subVect, pointerVect)) {
+      currentTime = Math.min(5 * 60 * 60, addTime * 60);    
+    } else if(vectDist(addVect, pointerVect) > vectDist(subVect, pointerVect)) {
+      currentTime = Math.max(0, subTime * 60);
+    }
+
+    updateTime();
+  //  console.log(vectDist(addVect, pointerVect), vectDist(subVect, pointerVect));
+
+    
+    // console.log(pointerVect, [timeAngToVect(timeToAng(currentTime) - angleRadians)[0], timeAngToVect(timeToAng(currentTime) - angleRadians)[1]])
   });
 
-  drawStep(currentTime);
+  updateTime();
   
 </script>
 </body>
