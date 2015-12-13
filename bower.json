@@ -1,0 +1,22 @@
+{
+  "name": "lucidtimer",
+  "version": "0.1.0",
+  "authors": [
+    "Jakob Frick"
+  ],
+  "description": "A dead simple timer",
+  "main": "index.html",
+  "moduleType": [],
+  "keywords": [
+    "timer"
+  ],
+  "license": "MIT",
+  "homepage": "lucidtimer.appspot.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

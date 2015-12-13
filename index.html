@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LucidTimer</title>
+  
+  <link rel="stylesheet" href="bower_components/material-design-lite/material.min.css">
+  <script src="bower_components/material-design-lite/material.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <script src="bower_components/hammerjs/hammer.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="mdl-layout mdl-js-layout">
+    <header class="mdl-layout__header mdl-layout__header--waterfall">
+      <div class="mdl-layout__header-row"><span class="mdl-layout-title">LucidTimer</span></div>
+    </header>
+
+    <main class="mdl-layout__content">
+      <div class="page-content">
+      
+        <div class="mdl-grid">
+          <div class="mdl-cell mdl-cell--2-col"></div>
+          <div id="watchcontainer" class="mdl-cell mdl-cell--8-col">
+              <canvas id="clockcanvas" width="2100" height="2100"></canvas>
+          </div>
+          <div class="mdl-cell mdl-cell--2-col"></div>
+        </div>
+      
+      </div>
+    </main>
+  </div>
+
+<script type="text/javascript">
+  var canvas = document.getElementById('clockcanvas');
+  var ctx = canvas.getContext("2d")
+
+  var primaryDark = "#212121";
+  var primaryLight = "red";
+  var radius = 1000;
+  var center = [1050, 1050];
+
+  function timeToAng(minutes) {
+    return minutes/30 * Math.PI;
+  }
+
+  function timeAngToVect(ang) {
+    return [-Math.sin(ang), Math.cos(ang)];
+  }
+
+  function setShadow() {
+    ctx.shadowColor = primaryDark;
+    ctx.shadowBlur = 20;
+  //  ctx.shadowOffsetX = 10;
+    ctx.shadowOffsetY = 5;
+  }
+
+  function setOrthogonalShadow(ang) {
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = timeAngToVect(ang - Math.PI * 1/4)[0] * 10;
+    ctx.shadowOffsetY = timeAngToVect(ang - Math.PI * 1/4)[1] * 10;
+  }
+
+
+  function drawTicks() {
+    ctx.save();
+    var ang;
+    ctx.fillStyle = primaryDark;
+  
+    for (var i = 0; i < 60; ++i) {
+      ang = timeToAng(i);
+      ctx.save();
+      ctx.translate(center[0] + Math.sin(ang) * radius, center[1] - Math.cos(ang) * radius);
+      ctx.rotate(ang);
+      setShadow();
+      ctx.fillRect(0, 0, 10, 100);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function drawBack() {
+    ctx.save();
+
+    ctx.strokeStyle = primaryDark;
+    ctx.beginPath();
+    ctx.arc(center[0], center[1], radius, 0, Math.PI * 2);
+    ctx.lineWidth = 10;
+    ctx.fillStyle = "white"
+    setShadow();
+    ctx.fill();
+    ctx.shadowColor = "transparent";
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawTime(minutes) {
+    ctx.save();
+
+    ctx.beginPath();
+    
+    var ang = timeToAng(minutes);
+    var angOffset = 1.5 * Math.PI;
+
+    ctx.moveTo(center[0], center[1]);
+    ctx.lineTo(center[0], center[1] - radius * 0.95);
+
+    ctx.arc(center[0], center[1], radius * 0.95, angOffset, angOffset - Math.min(ang, Math.PI * 2), true);
+    ctx.closePath();
+
+    ctx.fillStyle = "#F44336"
+    setShadow();
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(center[0], center[1]);
+
+    ctx.lineTo(center[0] + timeAngToVect(ang)[0] * radius * 0.95, 
+               center[1] - timeAngToVect(ang)[1] * radius * 0.95);
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = primaryDark;
+    setOrthogonalShadow(ang);
+    ctx.stroke();
+    ctx.restore();
+  }
+  var currentTime = 0.5;
+
+  function drawStep(i) {
+    if(i >= 300) {
+      i = 0;
+    }
+
+    drawBack();
+    drawTime(i);
+    drawTicks();
+    //setTimeout( function () { drawStep(i+1); }, 500);
+  }
+
+
+  var hammertime = new Hammer(document.getElementById("clockcanvas"));
+  hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+  hammertime.on('pan', function(ev) {
+
+    var vect = 
+    console.log(ev.velocityX, ev.velocityY);
+  });
+
+  drawStep(currentTime);
+  
+</script>
+</body>
+</html>
