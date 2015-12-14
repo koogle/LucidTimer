@@ -27,6 +27,7 @@ function makeToDisplayString(val) {
 }
 
 var ctx = null;
+var clockcanvas = null;
 var currentTime = 15 * 60;
 var nextUpdateHandle = null;
 
@@ -153,12 +154,12 @@ function updateTime() {
 
 
 function plusOne() {
-  currentTime += 60;
+  currentTime = Math.min(60 * 5 * 60, currentTime + 60);
   updateTime();
 }
 
 function minusOne() {
-  currentTime -= 60;
+  currentTime = Math.max(0, currentTime - 60);
   updateTime();
 }
 
@@ -180,36 +181,79 @@ function changeColor() {
   updateTime();
 }
 
+function offset(element){
+    var body = document.body,
+        win = document.defaultView,
+        docElem = document.documentElement,
+        box = document.createElement('div');
+    box.style.paddingLeft = box.style.width = "1px";
+    body.appendChild(box);
+    var isBoxModel = box.offsetWidth == 2;
+    body.removeChild(box);
+    box = element.getBoundingClientRect();
+    var clientTop  = docElem.clientTop  || body.clientTop  || 0,
+        clientLeft = docElem.clientLeft || body.clientLeft || 0,
+        scrollTop  = win.pageYOffset || isBoxModel && docElem.scrollTop  || body.scrollTop,
+        scrollLeft = win.pageXOffset || isBoxModel && docElem.scrollLeft || body.scrollLeft;
+    return {
+        top : box.top  + scrollTop  - clientTop,
+        left: box.left + scrollLeft - clientLeft};
+}
+
+function calcNewTime(ev) {
+//  ev.srcEvent.preventDefault();
+
+  // Cross browser pageX
+  e = ev.srcEvent || window.event;
+  var pageX = e.pageX;
+  var pageY = e.pageY;
+  if (pageX === undefined) {
+      if(e.clientX === undefined) {
+        e.clientX = e.changedTouches[0].clientX;
+        e.clientY = e.changedTouches[0].clientY;
+      }
+      
+      pageX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+      pageY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+  }
+
+  timeInMinutes = currentTime/60;
+
+  var pointerVect = [2 * ((pageX - offset(clockcanvas).left) / clockcanvas.clientWidth - 0.5), 
+                    -2 * ((pageY - offset(clockcanvas).top) / clockcanvas.clientHeight - 0.5)];
+
+  var indVect = [timeAngToVect(timeToAng(timeInMinutes))[0], timeAngToVect(timeToAng(timeInMinutes))[1]];
+
+  var angleRadians = vectAngle(pointerVect, indVect);
+
+
+  var addTime = roundToDigits(timeInMinutes + angleRadians * 30 / Math.PI, 2);
+  var addVect = [timeAngToVect(timeToAng(addTime))[0], timeAngToVect(timeToAng(addTime))[1]];
+  var subTime = roundToDigits(timeInMinutes - angleRadians * 30 / Math.PI, 2);
+  var subVect = [timeAngToVect(timeToAng(subTime))[0], timeAngToVect(timeToAng(subTime))[1]];
+
+  if(vectDist(addVect, pointerVect) < vectDist(subVect, pointerVect)) {
+    currentTime = Math.min(5 * 60 * 60, addTime * 60);    
+  } else if(vectDist(addVect, pointerVect) > vectDist(subVect, pointerVect)) {
+    currentTime = Math.max(0, subTime * 60);
+  }
+
+  updateTime();
+}
+
 function setupHammer() {
   var canvas = document.getElementById('clockcanvas');
   ctx = canvas.getContext("2d");
-  var clockcanvas = document.getElementById("clockcanvas");
+  clockcanvas = document.getElementById("clockcanvas");
   var hammertime = new Hammer(clockcanvas);
 
   hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+  
   hammertime.on('panmove', function(ev) {
-    timeInMinutes = currentTime/60;
-
-    var pointerVect = [2 * ((ev.srcEvent.pageX - clockcanvas.offsetLeft) / clockcanvas.clientWidth - 0.5), 
-                      -2 * ((ev.srcEvent.clientY - clockcanvas.offsetTop) / clockcanvas.clientHeight - 0.5)];
-
-    var indVect = [timeAngToVect(timeToAng(timeInMinutes))[0], timeAngToVect(timeToAng(timeInMinutes))[1]];
-
-    var angleRadians = vectAngle(pointerVect, indVect);
-
-
-    var addTime = roundToDigits(timeInMinutes + angleRadians * 30 / Math.PI, 2);
-    var addVect = [timeAngToVect(timeToAng(addTime))[0], timeAngToVect(timeToAng(addTime))[1]];
-    var subTime = roundToDigits(timeInMinutes - angleRadians * 30 / Math.PI, 2);
-    var subVect = [timeAngToVect(timeToAng(subTime))[0], timeAngToVect(timeToAng(subTime))[1]];
-
-    if(vectDist(addVect, pointerVect) < vectDist(subVect, pointerVect)) {
-      currentTime = Math.min(5 * 60 * 60, addTime * 60);    
-    } else if(vectDist(addVect, pointerVect) > vectDist(subVect, pointerVect)) {
-      currentTime = Math.max(0, subTime * 60);
-    }
-
-    updateTime();
+    calcNewTime(ev);
+  });
+  hammertime.on('tap', function(ev) {
+    calcNewTime(ev);
   });
 
   updateTime();
