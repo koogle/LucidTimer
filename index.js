@@ -134,6 +134,7 @@ function updateTime() {
     clearTimeout(nextUpdateHandle);
   }
 
+
   drawClock(currentTime);
   setDisplay(currentTime);
 
@@ -141,14 +142,18 @@ function updateTime() {
     nextUpdateHandle = setTimeout(function () {
       currentTime -= 1;
       
-      if(currentTime <= 0) {
-        
+      if(currentTime <= 1) { 
         currentTime = 0;
         alarmSound.play();
       } else {
-       updateTime();
+        updateTime();
       }
     }, 1000); 
+  }
+
+  // Make sure to catchup with timing problems
+  if(currentTime <= 0) {
+    updateTime();
   }
 }
 
