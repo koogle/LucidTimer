@@ -130,30 +130,23 @@ function setDisplay(time) {
 }
 
 function updateTime() {
+  drawClock(currentTime);
+  setDisplay(currentTime);
+
   if(nextUpdateHandle !== null) {
     clearTimeout(nextUpdateHandle);
   }
 
-
-  drawClock(currentTime);
-  setDisplay(currentTime);
-
   if(currentTime > 0) {
     nextUpdateHandle = setTimeout(function () {
-      currentTime -= 1;
-      
-      if(currentTime <= 1) { 
-        currentTime = 0;
-        alarmSound.play();
-      } else {
-        updateTime();
-      }
-    }, 1000); 
-  }
-
-  // Make sure to catchup with timing problems
-  if(currentTime <= 0) {
-    updateTime();
+      currentTime -= 1;  
+      updateTime();
+    }, 1000);
+  } else {
+    currentTime = 0;
+    alarmSound.play();
+    drawClock(currentTime);
+    setDisplay(currentTime);
   }
 }
 
