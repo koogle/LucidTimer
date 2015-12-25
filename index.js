@@ -28,7 +28,7 @@ function makeToDisplayString(val) {
 
 var ctx = null;
 var clockcanvas = null;
-var currentTime = 15 * 60;
+var finishedTime = Date.now() + 15 * 60 * 1000; 
 var nextUpdateHandle = null;
 
 var primaryDark = "#212121";
@@ -130,39 +130,52 @@ function setDisplay(time) {
 }
 
 function updateTime() {
-  drawClock(currentTime);
-  setDisplay(currentTime);
+  if (finishedTime == null) {  
+    alarmSound.pause();  
+    alarmSound.currentTime = 0; 
+    alarmSound.play();
+    drawClock(0);
+    setDisplay(0);
+    return;
+  }
+
+  var timeLeft = Math.round((finishedTime - Date.now()) / 1000);
+
+  drawClock(timeLeft);
+  setDisplay(timeLeft);
 
   if(nextUpdateHandle !== null) {
     clearTimeout(nextUpdateHandle);
   }
 
-  if(currentTime > 0) {
+  if(timeLeft > 0) {
     nextUpdateHandle = setTimeout(function () {
-      currentTime -= 1;  
       updateTime();
     }, 1000);
   } else {
-    currentTime = 0;
-    alarmSound.play();
-    drawClock(currentTime);
-    setDisplay(currentTime);
+    finishedTime = null;
+    updateTime();
   }
 }
 
 
 function plusOne() {
-  currentTime = Math.min(60 * 5 * 60, currentTime + 60);
+  
+  if(finishedTime == null) {
+    finishedTime = Date.now();
+  }
+
+  finishedTime = Math.min(Date.now() + 1000 * 60 * 5 * 60, finishedTime + 60 * 1000);
   updateTime();
 }
 
 function minusOne() {
-  currentTime = Math.max(0, currentTime - 60);
+  finishedTime = Math.max(0, finishedTime - 60 * 1000);
   updateTime();
 }
 
 function resetTime() {
-  currentTime = 0;
+  finishedTime = null;
   updateTime();
 }
 
@@ -215,7 +228,7 @@ function calcNewTime(ev) {
       pageY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
   }
 
-  timeInMinutes = currentTime/60;
+  timeInMinutes = Math.max(Math.round((finishedTime - Date.now()) / 1000)/60, 0);
 
   var pointerVect = [2 * ((pageX - offset(clockcanvas).left) / clockcanvas.clientWidth - 0.5), 
                     -2 * ((pageY - offset(clockcanvas).top) / clockcanvas.clientHeight - 0.5)];
@@ -231,9 +244,9 @@ function calcNewTime(ev) {
   var subVect = [timeAngToVect(timeToAng(subTime))[0], timeAngToVect(timeToAng(subTime))[1]];
 
   if(vectDist(addVect, pointerVect) < vectDist(subVect, pointerVect)) {
-    currentTime = Math.min(5 * 60 * 60, addTime * 60);    
+    finishedTime = Date.now() + Math.min(5 * 60 * 60 * 1000, addTime * 60 * 1000);    
   } else if(vectDist(addVect, pointerVect) > vectDist(subVect, pointerVect)) {
-    currentTime = Math.max(0, subTime * 60);
+    finishedTime = Date.now() + Math.max(0, subTime * 60 * 1000);
   }
 
   updateTime();
